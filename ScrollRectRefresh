@@ -1,0 +1,104 @@
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+public class ScrollRectRef : ScrollRect
+{
+    //高度 往下拉是负数   往上拉是正数
+    float f = 100f;
+    
+    /// <summary>
+    /// 是否刷新
+    /// </summary>
+    bool isRef = false;
+    /// <summary>
+    /// 是否拖动ing
+    /// </summary>
+    bool isDrag = false;
+    //显示、隐藏刷新字段
+    public bool isSendRefreshView = false;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        onValueChanged.AddListener(ScrollValueChanged);
+        //refreshView = RefreshView; 
+    }
+
+    /// <summary>
+    /// 当ScrollRect被拖动时
+    /// </summary>
+    /// <param name="vector">被拖动的距离与Content的大小比例</param>
+    void ScrollValueChanged(Vector2 vector)
+    {
+        //如果不拖动 当然不执行之下的代码
+        if (!isDrag)
+            return;
+        ////这个就是Content
+        RectTransform rect = GetComponentInChildren<ContentSizeFitter>().GetComponent<RectTransform>();
+        //Debug.Log(rect.rect.height * vector.y);
+        //如果拖动的距离大于给定的值
+        if (rect.rect.height * vector.y < f)
+        {
+            isRef = true;
+            SetState(true);
+            SendMessageGetNewComment();
+        }
+        else
+        {
+            isRef = false;
+            SetState(false);
+        }
+    }
+
+    public override void OnBeginDrag(PointerEventData eventData)
+    {
+        base.OnBeginDrag(eventData);
+        isDrag = true;
+    }
+
+    public override void OnEndDrag(PointerEventData eventData)
+    {
+        base.OnEndDrag(eventData);
+        SetState(false);
+        if (isRef)
+        {
+            RefreshView();
+        }
+        isRef = false;
+        isDrag = false;
+    }
+
+    /// <summary>
+    /// 发包 请求新评论
+    /// </summary>
+    public void SendMessageGetNewComment()
+    {
+        if (!isSendRefreshView)
+        {
+            Debug.Log("发包");
+            //发包
+            isSendRefreshView = true;
+        }
+    }
+
+    /// <summary>
+    /// 转圈动画
+    /// </summary>
+    public void SetState(bool isShow)
+    {
+
+    }
+    /// <summary>
+    /// content 添加新的评论
+    /// </summary>
+    void RefreshView()
+    {
+        //判断数据
+        //刷新页面
+        //isSend = false
+        Debug.Log("刷新");
+        //ex Text t = Instantiate(text, text.transform.parent, false);
+        isSendRefreshView = false;
+    }
+}
